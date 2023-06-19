@@ -1,17 +1,15 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  release:
+  test:
     # Prevents changesets action from creating a PR on forks
     if: github.repository == 'adyen/adyen-web'
-    name: Release
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -25,30 +23,6 @@ jobs:
       - name: Install Dependencies
         run: yarn
 
-      - name: Create Release Pull Request
-        uses: changesets/action@v1
-        id: create_release_pr
-        with:
-          version: yarn run version
-          commit: '[ci] release ${{ github.ref_name }}'
-          title: '[ci] Release ${{ github.ref_name }}'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Trigger validate-remote-assets
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'validate-remote-assets.yml',
-              ref: 'main',
-              inputs: {
-                pullRequestNumber: `${{steps.create_release_pr.outputs.pullRequestNumber}}`
-              }
-            })
-
       - name: Trigger codeQL, compressed-size, coveralls, e2e, unit-tests
         uses: actions/github-script@v6
         with:
@@ -58,5 +32,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: workflow,
-              ref: "main",
+              ref: "ci/use_reusable_workflows"
             }))

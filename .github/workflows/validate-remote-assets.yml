@@ -1,14 +1,14 @@
 name: Validate remote assets
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      pullRequestNumber:
+        description: Pull request number
+        required: true
 
 jobs:
   check-secured-fields-assets:
-    if: contains(github.head_ref, 'changeset-release')
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -36,7 +36,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { issue: { number: issue_number }, repo: { owner, repo }  } = context;
+            const issue_number = ${{ github.event.inputs.pullRequestNumber }}
+            const { repo: { owner, repo }  } = context;
             await github.rest.issues.createComment({ issue_number, owner, repo, body: '⚠️ WARNING: SecuredFields v${{ env.SF_VERSION }} might not be available live ⚠️ });
 
 
@@ -46,5 +47,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { issue: { number: issue_number }, repo: { owner, repo }  } = context;
+            const issue_number = ${{ github.event.inputs.pullRequestNumber }}
+            const { repo: { owner, repo }  } = context;
             await github.rest.issues.createComment({ issue_number, owner, repo, body: '✅ SecuredFields v${{ env.SF_VERSION }} are available live' });
