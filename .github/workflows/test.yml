@@ -24,12 +24,12 @@ jobs:
 
       - name: Install Dependencies
         run: yarn
-
-      - name: Trigger codeQL, compressed-size, coveralls, e2e, unit-tests
+      # Compressed size action doesn't support workflow_dispatch
+      - name: Trigger codeQL, coveralls, e2e, unit-tests
         uses: actions/github-script@v6
         with:
           script: |
-            const workflows = ["codeql-analysis.yml", "compressed-size.yml", "coveralls.yml", "e2e.yml", "unit-tests.yml"];
+            const workflows = ["codeql-analysis.yml", "coveralls.yml", "e2e.yml", "unit-tests.yml"];
             workflows.forEach(workflow => github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
