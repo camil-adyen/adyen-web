@@ -1,7 +1,9 @@
 name: Release
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - ci/use_reusable_workflows
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
