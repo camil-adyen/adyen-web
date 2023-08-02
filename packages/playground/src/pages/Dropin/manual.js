@@ -18,8 +18,35 @@ export async function initManual() {
                 values: [1, 2, 3, 4]
             }
         },
-        onSubmit: async (state, component) => {
-            const result = await makePayment(state.data);
+        // onSubmit: async (state, component, { resolve, reject }, actions: { handleOrder }) => {
+        onSubmit: async (state, component, actions) => {
+            // PLAN A - return object from submit, making onSubmit async
+            // PLAN B - onAuthorized, come after onSubmit,
+            try {
+                const result = await makePayment(state.data);
+                const order = await createOrder();
+
+
+
+                // component.handleApplePayOrder(order);
+
+                // actions.resolve({ order });
+
+        },
+        onAuthorized(resolve, reject, event)
+            const order = createOrder();
+            resolve(order);
+        }
+
+
+            } catch () {
+                actions.reject({
+                    error:
+                });
+            },
+            onAuthorized(resolve, reject, event) => {
+
+            },
 
             // handle actions
             if (result.action) {
