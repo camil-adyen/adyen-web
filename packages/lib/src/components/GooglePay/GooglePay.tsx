@@ -40,7 +40,6 @@ class GooglePay extends UIElement<GooglePayProps> {
                 type: this.props.type ?? GooglePay.type,
                 ...this.state
             },
-
             browserInfo: this.browserInfo
         };
     }
@@ -53,12 +52,13 @@ class GooglePay extends UIElement<GooglePayProps> {
             .then(paymentData => {
                 // setState will trigger an onChange event
                 this.setState({
-                    billingAddress: blabla
-                    shippingAddress: blable
                     googlePayToken: paymentData.paymentMethodData.tokenizationData.token,
                     googlePayCardNetwork: paymentData.paymentMethodData.info.cardNetwork
                 });
-                super.submit();
+
+                const submitData = super.submit();
+                console.log(submitData);
+
                 return onAuthorized(paymentData);
             })
             .catch((error: google.payments.api.PaymentsError) => {

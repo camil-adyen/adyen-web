@@ -13,6 +13,8 @@ type PromiseResolve = typeof Promise.resolve;
 
 type PromiseReject = typeof Promise.reject;
 
+export type OnSubmitReturn = Promise<{ applePay: { orderDetails: any } }> | Promise<void> | void;
+
 export interface CoreOptions {
     session?: any;
     /**
@@ -121,7 +123,7 @@ export interface CoreOptions {
 
     onPaymentCompleted?(data: OnPaymentCompletedData, element?: UIElement): void;
 
-    onSubmit?(state: any, element: UIElement): void;
+    onSubmit?(state: any, element: UIElement): OnSubmitReturn;
 
     onAdditionalDetails?(state: any, element?: UIElement): void;
 

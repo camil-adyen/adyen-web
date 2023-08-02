@@ -28,25 +28,29 @@ export function handleFinalState(result: any, component: UIElement): void {
     const isDropin = component?.props?.isDropin;
     const isAuthorized = result.resultCode === 'Authorised' || result.resultCode === 'Received';
 
-    if (isDropin) {
-        if (isAuthorized) {
-            component.setStatus('success');
-        } else {
-            component.setStatus('error');
-        }
-        return;
-    }
+    // if (isDropin) {
+    //     if (isAuthorized) {
+    //         component.setStatus('success');
+    //     } else {
+    //         component.setStatus('error');
+    //     }
+    //     return;
+    // }
 
-    if (component?.unmount) {
-        component.unmount();
-    }
-    displayResultMessage(isAuthorized, result.resultCode);
+    debugger;
+
+    return result;
+
+    // if (component?.unmount) {
+    //     component.unmount();
+    // }
+    // displayResultMessage(isAuthorized, result.resultCode);
 }
 
 export async function handleResponse(response, component, checkout, paymentData?) {
     if (response.action) {
         component.handleAction(response.action);
-        return;
+        return response;
     }
 
     if (response.order && response.order?.remainingAmount?.value > 0) {
@@ -66,10 +70,10 @@ export async function handleResponse(response, component, checkout, paymentData?
             order,
             amount: response.order.remainingAmount
         });
-        return;
+        return response;
     }
 
-    handleFinalState(response, component);
+    return handleFinalState(response, component);
 }
 
 export function handleChange(state: any, component: UIElement) {
@@ -94,7 +98,7 @@ export async function handleSubmit(state: any, component: UIElement, checkout: C
     component.setStatus('loading');
     const response = await makePayment(state.data, paymentData);
     component.setStatus('ready');
-    await handleResponse(response, component, checkout, paymentData);
+    return handleResponse(response, component, checkout, paymentData);
 }
 
 export async function handleAdditionalDetails(details, component: UIElement, checkout: Core) {

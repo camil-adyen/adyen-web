@@ -87,12 +87,12 @@ class DropinElement extends UIElement<DropinElementProps> {
     /**
      * Calls the onSubmit event with the state of the activePaymentMethod
      */
-    submit(): void {
+    submit(): Promise<void> {
         if (!this.activePaymentMethod) {
             throw new Error('No active payment method.');
         }
 
-        this.activePaymentMethod.submit();
+        return this.activePaymentMethod.submit();
     }
 
     /**

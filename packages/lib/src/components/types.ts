@@ -9,6 +9,7 @@ import { PayButtonProps } from './internal/PayButton/PayButton';
 import Session from '../core/CheckoutSession';
 import { SRPanel } from '../core/Errors/SRPanel';
 import { Resources } from '../core/Context/Resources';
+import { OnSubmitReturn } from '../core/types';
 
 export interface PaymentMethodData {
     paymentMethod: {
@@ -118,7 +119,7 @@ export interface UIElementProps extends BaseElementProps {
     onChange?: (state: any, element: UIElement) => void;
     onValid?: (state: any, element: UIElement) => void;
     beforeSubmit?: (state: any, element: UIElement, actions: any) => Promise<void>;
-    onSubmit?: (state: any, element: UIElement) => void;
+    onSubmit?: (state: any, element: UIElement) => OnSubmitReturn;
     onComplete?: (state, element: UIElement) => void;
     onActionHandled?: (rtnObj: ActionHandledReturnObject) => void;
     onAdditionalDetails?: (state: any, element: UIElement) => void;

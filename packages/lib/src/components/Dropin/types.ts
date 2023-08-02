@@ -44,9 +44,13 @@ export interface DropinElementProps extends UIElementProps {
     instantPaymentMethods?: PaymentMethod[];
 
     openFirstStoredPaymentMethod?: boolean;
+
     openFirstPaymentMethod?: boolean;
-    onSubmit?: (data, component) => void;
+
+    onSubmit?: (data, component) => Promise<void>;
+
     onReady?: () => void;
+
     onSelect?: (paymentMethod: UIElement) => void;
 
     /**

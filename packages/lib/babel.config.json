@@ -23,6 +23,7 @@
         "targets": {
           "esmodules": true
         },
+        "loose": true,
         "bugfixes": true
       }
     ]

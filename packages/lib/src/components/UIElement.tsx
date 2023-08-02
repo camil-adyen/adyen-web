@@ -9,7 +9,7 @@ import AdyenCheckoutError from '../core/Errors/AdyenCheckoutError';
 import { UIElementStatus } from './types';
 import { hasOwnProperty } from '../utils/hasOwnProperty';
 import DropinElement from './Dropin';
-import { CoreOptions } from '../core/types';
+import { CoreOptions, OnSubmitReturn } from '../core/types';
 import Core from '../core';
 
 export class UIElement<P extends UIElementProps = any> extends BaseElement<P> implements IUIElement {
@@ -45,10 +45,10 @@ export class UIElement<P extends UIElementProps = any> extends BaseElement<P> im
         return state;
     }
 
-    private onSubmit(): void {
+    private onSubmit(): OnSubmitReturn {
         //TODO: refactor this, instant payment methods are part of Dropin logic not UIElement
         if (this.props.isInstantPayment) {
-            const dropinElementRef = this.elementRef as DropinElement;
+            const dropinElementRef = this.elementRef as unknown as DropinElement;
             dropinElementRef.closeActivePaymentMethod();
         }
 
@@ -56,10 +56,13 @@ export class UIElement<P extends UIElementProps = any> extends BaseElement<P> im
             this.setElementStatus('loading');
         }
 
+        // Advanced flow
         if (this.props.onSubmit) {
-            // Classic flow
-            this.props.onSubmit({ data: this.data, isValid: this.isValid }, this.elementRef);
-        } else if (this._parentInstance.session) {
+            return this.props.onSubmit({ data: this.data, isValid: this.isValid }, this.elementRef);
+        }
+
+        // Sessions flow
+        if (this._parentInstance.session) {
             // Session flow
             // wrap beforeSubmit callback in a promise
             const beforeSubmitEvent = this.props.beforeSubmit
@@ -77,9 +80,9 @@ export class UIElement<P extends UIElementProps = any> extends BaseElement<P> im
                     // set state as ready to submit if the merchant cancels the action
                     this.elementRef.setStatus('ready');
                 });
-        } else {
-            this.handleError(new AdyenCheckoutError('IMPLEMENTATION_ERROR', 'Could not submit the payment'));
         }
+
+        this.handleError(new AdyenCheckoutError('IMPLEMENTATION_ERROR', 'Could not submit the payment'));
     }
 
     private onValid() {
@@ -95,13 +98,13 @@ export class UIElement<P extends UIElementProps = any> extends BaseElement<P> im
     /**
      * Submit payment method data. If the form is not valid, it will trigger validation.
      */
-    public submit(): void {
+    public submit(): OnSubmitReturn {
         if (!this.isValid) {
             this.showValidation();
             return;
         }
 
-        this.onSubmit();
+        return this.onSubmit();
     }
 
     public showValidation(): this {

@@ -20,33 +20,85 @@ export async function initManual() {
         },
         // onSubmit: async (state, component, { resolve, reject }, actions: { handleOrder }) => {
         onSubmit: async (state, component, actions) => {
-            // PLAN A - return object from submit, making onSubmit async
-            // PLAN B - onAuthorized, come after onSubmit,
-            try {
-                const result = await makePayment(state.data);
-                const order = await createOrder();
+            //     // PLAN A - return object from submit, making onSubmit async
+            //     // PLAN B - onAuthorized, come after onSubmit,
+            //     try {
+            //         const result = await makePayment(state.data);
+            //         const order = await createOrder();
+            //
+            //
+            //
+            //         // component.handleApplePayOrder(order);
+            //
+            //         // actions.resolve({ order });
+            //
+            // },
+            // onAuthorized(resolve, reject, event)
+            //     const order = createOrder();
+            //     resolve(order);
+            // }
+            //
+            //
+            //     } catch () {
+            //         actions.reject({
+            //             error:
+            //         });
+            //     },
+            //     onAuthorized(resolve, reject, event) => {
+            //
+            //     },
 
+            const result = await makePayment(state.data);
+            const txVariant = state.data.paymentMethod.type;
 
+            // If Refused
+            if (result.resultCode === 'Refused') {
+                let paymentMethodError = {};
+                if (txVariant === 'applepay') {
+                    //  ApplePayJS.ApplePayPaymentAuthorizationResult
+                    paymentMethodError = {
+                        status: 1,
+                        errors: [
+                            {
+                                code: 'billingContactInvalid',
+                                contactField: 'postalAddress',
+                                message: 'Invalid name'
+                            }
+                        ]
+                    };
+                    throw paymentMethodError;
+                }
 
-                // component.handleApplePayOrder(order);
+                if (txVariant === 'googlepay') {
+                    paymentMethodError = {
+                        transactionState: 'ERROR',
+                        error: {
+                            intent: 'PAYMENT_AUTHORIZATION',
+                            message: 'Insufficient funds',
+                            reason: 'PAYMENT_DATA_INVALID'
+                        }
+                    };
+                    throw paymentMethodError;
+                }
+            }
 
-                // actions.resolve({ order });
+            if (txVariant === 'applepay') {
+                const applePayOrder = await createApplePayOrder();
 
-        },
-        onAuthorized(resolve, reject, event)
-            const order = createOrder();
-            resolve(order);
-        }
+                return {
+                    applePay: {
+                        orderDetails: applePayOrder
+                    }
+                };
+            }
 
-
-            } catch () {
-                actions.reject({
-                    error:
-                });
-            },
-            onAuthorized(resolve, reject, event) => {
-
-            },
+            if (txVariant === 'googlepay') {
+                return {
+                    googlePay: {
+                        customStuff: {}
+                    }
+                };
+            }
 
             // handle actions
             if (result.action) {
@@ -63,7 +115,13 @@ export async function initManual() {
                 const orderPaymentMethods = await getPaymentMethods({ order, amount, shopperLocale });
                 checkout.update({ paymentMethodsResponse: orderPaymentMethods, order, amount: result.order.remainingAmount });
             } else {
-                handleFinalState(result.resultCode, component);
+                // localStorage.removeItem('storedPaymentData');
+
+                if (result.resultCode === 'Authorised' || result.resultCode === 'Received') {
+                    dropin.setStatus('success');
+                } else {
+                    dropin.setStatus('error');
+                }
             }
         },
         onChange: state => {
@@ -100,8 +158,11 @@ export async function initManual() {
                 hasHolderName: true,
                 holderNameRequired: true
             },
-            paywithgoogle: {
-                buttonType: 'plain'
+            googlepay: {
+                buttonType: 'plain',
+                onAuthorized(data) {
+                    console.log(data);
+                }
             }
         }
     });

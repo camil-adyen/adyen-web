@@ -53,19 +53,19 @@ export default async () => {
             ],
             watch: watchConfig
         },
-        {
-            input,
-            external: getExternals(),
-            plugins: modernPlugins,
-            output: [
-                {
-                    dir: 'dist/es.modern',
-                    format: 'esm',
-                    chunkFileNames: '[name].js'
-                }
-            ],
-            watch: watchConfig
-        },
+        // {
+        //     input,
+        //     external: getExternals(),
+        //     plugins: modernPlugins,
+        //     output: [
+        //         {
+        //             dir: 'dist/es.modern',
+        //             format: 'esm',
+        //             chunkFileNames: '[name].js'
+        //         }
+        //     ],
+        //     watch: watchConfig
+        // },
         {
             input,
             plugins,

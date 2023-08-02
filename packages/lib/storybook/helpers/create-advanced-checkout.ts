@@ -30,13 +30,14 @@ async function createAdvancedFlowCheckout({
         showPayButton,
         paymentMethodsConfiguration,
 
-        onSubmit: (state, component) => {
+        onSubmit: async (state, component) => {
             const paymentData = {
                 amount: paymentAmount,
                 countryCode,
                 shopperLocale
             };
-            handleSubmit(state, component, checkout, paymentData);
+
+            return handleSubmit(state, component, checkout, paymentData);
         },
 
         onChange: (state, component) => {

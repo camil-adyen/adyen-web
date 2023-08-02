@@ -52,6 +52,7 @@ class ApplePayElement extends UIElement<ApplePayElementProps> {
         };
     }
 
+    // @ts-ignore Wrap the whole startSession on submit promise
     submit() {
         return this.startSession(this.props.onAuthorized);
     }
@@ -76,21 +77,25 @@ class ApplePayElement extends UIElement<ApplePayElementProps> {
             onShippingMethodSelected,
             onShippingContactSelected,
             onValidateMerchant: onValidateMerchant || this.validateMerchant,
-            onPaymentAuthorized: (resolve, reject, event) => {
+            onPaymentAuthorized: async (resolve, reject, event) => {
+                // get billing and shipping details and set state
                 if (event?.payment?.token?.paymentData) {
                     this.setState({ applePayToken: btoa(JSON.stringify(event.payment.token.paymentData)) });
                 }
+
                 try {
-                    await this.submit();
-                } catch (error) {
+                    const submitData = await super.submit();
+                    if (submitData) {
+                        const order = submitData?.applePay?.orderDetails;
+                        if (order) {
+                            session.setApplePayOrderDetails(order);
+                        }
+                    }
 
-                }
-
-                new Promise((resolve, reject) =>  super.submit(action: {resolve,reject} ) => (objectFromSubmit) =>
                     onPaymentAuthorized(resolve, reject, event);
-                })
-
-
+                } catch (error) {
+                    reject(error);
+                }
             }
         });
 

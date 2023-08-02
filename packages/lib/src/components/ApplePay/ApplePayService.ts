@@ -15,6 +15,8 @@ class ApplePayService {
     private session: ApplePaySession;
     private readonly options: ApplePayServiceOptions;
 
+    private orderDetails: any = null;
+
     constructor(paymentRequest: ApplePayJS.ApplePayPaymentRequest, options: ApplePayServiceOptions) {
         this.options = options;
 
@@ -43,6 +45,10 @@ class ApplePayService {
      */
     begin() {
         return this.session.begin();
+    }
+
+    public setApplePayOrderDetails(order) {
+        this.orderDetails = order;
     }
 
     /**
@@ -75,16 +81,21 @@ class ApplePayService {
     onpaymentauthorized(event: ApplePayJS.ApplePayPaymentAuthorizedEvent, onPaymentAuthorized: OnAuthorizedCallback): Promise<void> {
         return new Promise((resolve, reject) => onPaymentAuthorized(resolve, reject, event))
             .then((result: ApplePayJS.ApplePayPaymentAuthorizationResult) => {
-                this.session.completePayment({
+                const completePaymentData = {
                     ...result,
+                    ...(this.orderDetails && { orderDetails: this.orderDetails }),
                     status: result?.status ?? ApplePaySession.STATUS_SUCCESS
-                });
+                };
+                console.log(completePaymentData);
+                this.session.completePayment(completePaymentData);
             })
             .catch((result?: ApplePayJS.ApplePayPaymentAuthorizationResult) => {
-                this.session.completePayment({
+                const completePaymentData = {
                     ...result,
                     status: result?.status ?? ApplePaySession.STATUS_FAILURE
-                });
+                };
+                console.log(completePaymentData);
+                this.session.completePayment(completePaymentData);
             });
     }
 
