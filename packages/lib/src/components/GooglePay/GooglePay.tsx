@@ -49,17 +49,19 @@ class GooglePay extends UIElement<GooglePayProps> {
 
         return new Promise((resolve, reject) => this.props.onClick(resolve, reject))
             .then(() => this.googlePay.initiatePayment(this.props))
-            .then(paymentData => {
+            .then(async paymentData => {
                 // setState will trigger an onChange event
                 this.setState({
                     googlePayToken: paymentData.paymentMethodData.tokenizationData.token,
                     googlePayCardNetwork: paymentData.paymentMethodData.info.cardNetwork
                 });
 
-                const submitData = super.submit();
-                console.log(submitData);
-
-                return onAuthorized(paymentData);
+                try {
+                    await super.submit();
+                    onAuthorized(paymentData);
+                } catch (e) {
+                    console.log(e);
+                }
             })
             .catch((error: google.payments.api.PaymentsError) => {
                 if (error.statusCode === 'CANCELED') {

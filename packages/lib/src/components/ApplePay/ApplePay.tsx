@@ -82,16 +82,8 @@ class ApplePayElement extends UIElement<ApplePayElementProps> {
                 if (event?.payment?.token?.paymentData) {
                     this.setState({ applePayToken: btoa(JSON.stringify(event.payment.token.paymentData)) });
                 }
-
                 try {
-                    const submitData = await super.submit();
-                    if (submitData) {
-                        const order = submitData?.applePay?.orderDetails;
-                        if (order) {
-                            session.setApplePayOrderDetails(order);
-                        }
-                    }
-
+                    await super.submit();
                     onPaymentAuthorized(resolve, reject, event);
                 } catch (error) {
                     reject(error);

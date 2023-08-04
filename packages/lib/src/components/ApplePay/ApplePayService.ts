@@ -86,7 +86,7 @@ class ApplePayService {
                     ...(this.orderDetails && { orderDetails: this.orderDetails }),
                     status: result?.status ?? ApplePaySession.STATUS_SUCCESS
                 };
-                console.log(completePaymentData);
+                console.log('onpaymentauthorized', completePaymentData);
                 this.session.completePayment(completePaymentData);
             })
             .catch((result?: ApplePayJS.ApplePayPaymentAuthorizationResult) => {
@@ -94,7 +94,7 @@ class ApplePayService {
                     ...result,
                     status: result?.status ?? ApplePaySession.STATUS_FAILURE
                 };
-                console.log(completePaymentData);
+                console.log('onpaymentauthorized', completePaymentData);
                 this.session.completePayment(completePaymentData);
             });
     }
