@@ -45,7 +45,7 @@ export class UIElement<P extends UIElementProps = any> extends BaseElement<P> im
         return state;
     }
 
-    private onSubmit(): OnSubmitReturn {
+    private async onSubmit(): OnSubmitReturn {
         //TODO: refactor this, instant payment methods are part of Dropin logic not UIElement
         if (this.props.isInstantPayment) {
             const dropinElementRef = this.elementRef as unknown as DropinElement;
@@ -58,7 +58,37 @@ export class UIElement<P extends UIElementProps = any> extends BaseElement<P> im
 
         // Advanced flow
         if (this.props.onSubmit) {
-            return this.props.onSubmit({ data: this.data, isValid: this.isValid }, this.elementRef);
+            const submitEvent = new Promise((resolve, reject) =>
+                this.props.onSubmit({ data: this.data, isValid: this.isValid }, this.elementRef, { resolve, reject })
+            );
+
+            /**
+             * V1 - resolving and rejecting
+             */
+            try {
+                const { response, options } = await submitEvent;
+                await afterSubmitEvent?.({ options });
+                this.handleResponse(response);
+            } catch (rejected) {
+                const { response, options } = rejected;
+                await afterSubmitEvent?.({ options });
+                this.handleResponse(response);
+            }
+
+            /**
+             * V2 - resolving only
+             */
+            try {
+                const { response, options } = await submitEvent;
+                await afterSubmitEvent?.({ options });
+                this.handleResponse(response);
+            } catch (error) {
+                this.handleError(error);
+            }
+
+            //
+            // submitEvent.then(afterSubmitEvent).then(this.handleResponse)
+            // submitEvent.then(this.handleResponse);
         }
 
         // Sessions flow

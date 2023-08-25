@@ -51,6 +51,40 @@ export async function initManual() {
             const result = await makePayment(state.data);
             const txVariant = state.data.paymentMethod.type;
 
+            /**
+             * V1 - resolving and rejecting
+             */
+            // resolving
+            action.resolve({
+                response: result,
+                options: { applePayOrderDetails }
+            });
+
+            //  ApplePayJS.ApplePayPaymentAuthorizationResult
+            action.reject({
+                response: result,
+                options: {
+                    applePayError: {
+                        status: 1,
+                        errors: [
+                            {
+                                code: 'billingContactInvalid',
+                                contactField: 'postalAddress',
+                                message: 'Invalid name'
+                            }
+                        ]
+                    }
+                }
+            });
+
+            /**
+             * V2 - resolving only
+             */
+            action.resolve({
+                response: result,
+                options: { applePayOrderDetails, applePayError }
+            });
+
             // If Refused
             if (result.resultCode === 'Refused') {
                 let paymentMethodError = {};

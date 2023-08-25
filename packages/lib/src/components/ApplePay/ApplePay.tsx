@@ -57,7 +57,7 @@ class ApplePayElement extends UIElement<ApplePayElementProps> {
         return this.startSession(this.props.onAuthorized);
     }
 
-    private startSession(onPaymentAuthorized: OnAuthorizedCallback) {
+    private startSession(onAuthorized: OnAuthorizedCallback) {
         const { version, onValidateMerchant, onPaymentMethodSelected, onShippingMethodSelected, onShippingContactSelected } = this.props;
 
         const paymentRequest = preparePaymentRequest({
@@ -73,21 +73,32 @@ class ApplePayElement extends UIElement<ApplePayElementProps> {
             onCancel: event => {
                 this.handleError(new AdyenCheckoutError('CANCEL', 'ApplePay UI dismissed', { cause: event }));
             },
-            onPaymentMethodSelected,
+            onPaymentMethodSelected,feature
             onShippingMethodSelected,
             onShippingContactSelected,
             onValidateMerchant: onValidateMerchant || this.validateMerchant,
-            onPaymentAuthorized: async (resolve, reject, event) => {
+            onPaymentAuthorized: async (applePayResolve, applePayReject, event) => {
                 // get billing and shipping details and set state
                 if (event?.payment?.token?.paymentData) {
                     this.setState({ applePayToken: btoa(JSON.stringify(event.payment.token.paymentData)) });
                 }
-                try {
-                    await super.submit();
-                    onPaymentAuthorized(resolve, reject, event);
-                } catch (error) {
-                    reject(error);
-                }
+
+                const onAuthorizedEvent = ({ options }) =>
+                    new Promise((resolve, reject) => {
+                        if (options.error) {
+                            reject();
+                            return;
+                        }
+                        onAuthorized(resolve, reject, event);
+                    })
+                        .then(applePayResolve)
+                        .catch(applePayReject);
+
+                await super.submit({ afterSubmitEvent: onAuthorizedEvent });
+
+                // await super.submit({ afterSubmitEvent: () => onAuthorized(resolve, reject, event) });
+                // onPaymentAuthorized(resolve, reject, event);
+                // reject(error);
             }
         });
 
