@@ -39,7 +39,17 @@ class VisaSdk extends AbstractSrcInitiator {
             srciTransactionId
         };
 
-        await this.schemeSdk.init(sdkProps);
+        console.log('Adyen: Calling Visa SDK Init() now');
+        console.time('Visa Init() time');
+        try {
+            await this.schemeSdk.init(sdkProps);
+        } catch (err) {
+            const srciError = new SrciError(err, 'init', this.schemeName);
+            console.warn(`Exception from ${this.schemeName} during init(), transactionID ${srciTransactionId}`);
+            throw srciError;
+        } finally {
+            console.timeEnd('Visa Init() time');
+        }
     }
 
     public async identityLookup({ identityValue, type }: SrcIdentityLookupParams): Promise<SrciIdentityLookupResponse> {

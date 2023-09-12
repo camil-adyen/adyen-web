@@ -81,8 +81,12 @@ class ClickToPayService implements IClickToPayService {
         this.setState(CtpState.Loading);
 
         try {
+            console.time('Fetching SDKs Sources time:');
             this.sdks = await this.sdkLoader.load(this.environment);
+            console.timeEnd('Fetching SDKs Sources time:');
+
             await this.initiateSdks();
+
             const { recognized = false, idTokens = null } = await this.verifyIfShopperIsRecognized();
 
             if (recognized) {
@@ -104,10 +108,11 @@ class ClickToPayService implements IClickToPayService {
 
             this.setState(CtpState.NotAvailable);
         } catch (error) {
-            if (error instanceof SrciError) console.warn(`Error at ClickToPayService # init: ${error.toString()}`);
-            if (error instanceof TimeoutError) {
+            if ((error instanceof SrciError && error.reason === 'REQUEST_TIMEOUT') || error instanceof TimeoutError) {
                 console.warn(error.toString());
                 this.onTimeout?.(error);
+            } else if (error instanceof SrciError) {
+                console.warn(`Error at ClickToPayService: ${error.toString()}`);
             } else {
                 console.warn(error);
             }
@@ -304,7 +309,9 @@ class ClickToPayService implements IClickToPayService {
             return executeWithTimeout<void>(
                 () => sdk.init(cfg, this.srciTransactionId),
                 5000,
-                new TimeoutError(`ClickToPayService - Timeout during init() of the scheme '${sdk.schemeName}'`)
+                new TimeoutError(
+                    `ClickToPayService - Timeout during init() of the scheme '${sdk.schemeName}', transactionID ${this.srciTransactionId}`
+                )
             );
         });
 

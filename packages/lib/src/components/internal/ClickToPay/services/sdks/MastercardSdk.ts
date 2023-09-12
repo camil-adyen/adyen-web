@@ -38,7 +38,17 @@ class MastercardSdk extends AbstractSrcInitiator {
             ...getMastercardSettings(this.customSdkConfiguration),
             srciTransactionId
         };
-        await this.schemeSdk.init(sdkProps);
+        console.log('Adyen: Calling MASTERCARD SDK Init() now');
+        console.time('MC Init() time');
+        try {
+            await this.schemeSdk.init(sdkProps);
+        } catch (err) {
+            const srciError = new SrciError(err, 'init', this.schemeName);
+            console.warn(`Exception of ${this.schemeName} during init(), transactionID ${srciTransactionId}`);
+            throw srciError;
+        } finally {
+            console.timeEnd('MC Init() time');
+        }
     }
 
     public async identityLookup({ identityValue, type }: SrcIdentityLookupParams): Promise<SrciIdentityLookupResponse> {
