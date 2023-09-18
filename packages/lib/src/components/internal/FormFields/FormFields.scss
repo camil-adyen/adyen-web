@@ -140,3 +140,9 @@
 .adyen-checkout__input--date {
     padding: 0.5em;
 }
+
+.adyen-checkout__filter-input:-webkit-autofill,
+.adyen-checkout__input:-webkit-autofill {
+    box-shadow: 0 0 0 1000px var(--b-color-background-primary) inset !important;
+    -webkit-text-fill-color: var(--b-input-field-input-color);
+}
