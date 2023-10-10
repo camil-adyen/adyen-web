@@ -271,8 +271,7 @@ describe('Core - tests ensuring props reach components', () => {
             const flushPromises = () => new Promise(process.nextTick);
             await flushPromises();
 
-            const storedCard = dropin.dropinRef.state.elements[0];
-
+            const storedCard = dropin.dropinRef.state.storedPaymentElements[0];
             // expect props from core.getPropsForComps()
             expect(storedCard.props._parentInstance).not.toEqual(null);
             expect(storedCard.props.paymentMethods).toEqual(newPmResponsePaymentMethods);
@@ -302,7 +301,7 @@ describe('Core - tests ensuring props reach components', () => {
             const flushPromises = () => new Promise(process.nextTick);
             await flushPromises();
 
-            const card = dropin.dropinRef.state.elements[1];
+            const card = dropin.dropinRef.state.elements[0];
 
             // expect props from core.getPropsForComps()
             expect(card.props._parentInstance).not.toEqual(null);
@@ -336,7 +335,7 @@ describe('Core - tests ensuring props reach components', () => {
             const flushPromises = () => new Promise(process.nextTick);
             await flushPromises();
 
-            const aPay = dropin.dropinRef.state.elements[2];
+            const aPay = dropin.dropinRef.state.elements[1];
 
             // expect props from core.getPropsForComps()
             expect(aPay.props._parentInstance).not.toEqual(null);
@@ -368,7 +367,7 @@ describe('Core - tests ensuring props reach components', () => {
             const flushPromises = () => new Promise(process.nextTick);
             await flushPromises();
 
-            const redirect = dropin.dropinRef.state.elements[3];
+            const redirect = dropin.dropinRef.state.elements[2];
 
             // expect props from core.getPropsForComps()
             expect(redirect.props._parentInstance).not.toEqual(null);

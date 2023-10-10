@@ -131,7 +131,7 @@ test('should call onSelect if openFirstStoredPaymentMethod is set and there is n
 
     render(
         <PaymentMethodList
-            paymentMethods={paymentMethods}
+            storedPaymentMethods={paymentMethods}
             cachedPaymentMethods={{}}
             isLoading={false}
             onSelect={onSelectMock}
