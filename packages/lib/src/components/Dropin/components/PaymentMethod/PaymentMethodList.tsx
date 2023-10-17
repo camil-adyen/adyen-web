@@ -54,6 +54,9 @@ class PaymentMethodList extends Component<PaymentMethodListProps> {
     render({ paymentMethods, instantPaymentMethods, storedPaymentMethods }) {
         const { i18n } = useCoreContext();
         const brandLogoConfiguration = useBrandLogoConfiguration(paymentMethods);
+        const hasInstantPaymentMethods = instantPaymentMethods.length > 0;
+        const hasStoredPaymentMethods = storedPaymentMethods.length > 0;
+        const pmListLabel = hasInstantPaymentMethods || hasStoredPaymentMethods ? i18n.get('paymentMethodsList.otherPayments.label') : '';
 
         return (
             <Fragment>
@@ -66,9 +69,9 @@ class PaymentMethodList extends Component<PaymentMethodListProps> {
                     />
                 )}
 
-                {!!instantPaymentMethods.length && <InstantPaymentMethods paymentMethods={instantPaymentMethods} />}
+                {hasInstantPaymentMethods && <InstantPaymentMethods paymentMethods={instantPaymentMethods} />}
 
-                {!!storedPaymentMethods.length && (
+                {hasStoredPaymentMethods && (
                     <PaymentMethodsContainer
                         {...this.props}
                         label={i18n.get('paymentMethodsList.storedPayments.label')}
@@ -80,7 +83,7 @@ class PaymentMethodList extends Component<PaymentMethodListProps> {
                 {!!paymentMethods.length && (
                     <PaymentMethodsContainer
                         {...this.props}
-                        label={i18n.get('paymentMethodsList.otherPayments.label')}
+                        label={pmListLabel}
                         classNameModifiers={['otherPayments']}
                         paymentMethods={paymentMethods}
                     ></PaymentMethodsContainer>
